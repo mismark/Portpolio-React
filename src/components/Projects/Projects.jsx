@@ -13,6 +13,24 @@ function Projects() {
       desc: "Document request management system with admin control.",
       github: "https://github.com/mismark/BDU_Document_Request_Management_System",
       live: "#" // or real deployed link
+    },
+    {
+      title: "Car Rental System",
+      desc: "Car rental system with admin control",
+      github: "https://github.com/mismark/Car-Rental_System",
+      live: "#"
+    },
+    {
+      title: "Portpolio By React ",
+      desc: "portpolio by react as owner and author",
+      github: "https://github.com/mismark/Portpolio-React",
+      live: "#"
+    },
+    {
+      title: "other mini problems ",
+      desc: "other mini projects I have done ",
+      github: "https://github.com/mismark",
+      live: "#"
     }
   ];
 
