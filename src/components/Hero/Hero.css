@@ -14,3 +14,15 @@
   border-radius: 50%;
   border: 3px solid #3b82f6;
 }
+html {
+  scroll-behavior: smooth;
+}
+.contactbtn{
+  padding: 5px;
+  margin: 15px;
+  border-radius: 10px;
+}
+.contactbtn:hover{
+  
+  background-color: #3b82f6;
+box-shadow: 0 0 15px #00e0ff;}
