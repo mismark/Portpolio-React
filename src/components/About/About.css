@@ -1,0 +1,31 @@
+.about {
+  padding: 60px 20px;
+  text-align: center;
+  color: white;
+}
+
+.about p {
+  max-width: 700px;
+  margin: 20px auto;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+/* CV BUTTON */
+.cv-btn {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 12px 28px;
+  border-radius: 30px;
+  border: 1px solid #00e0ff;
+  color: #00e0ff;
+  text-decoration: none;
+  transition: 0.3s;
+  font-weight: 500;
+}
+
+.cv-btn:hover {
+  background: #00e0ff;
+  color: black;
+  box-shadow: 0 0 15px #00e0ff;
+}

@@ -1,0 +1,12 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0b1a33;
+  color: white;
+  font-family: Arial, sans-serif;
+  scroll-behavior: smooth;
+}

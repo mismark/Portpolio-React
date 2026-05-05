@@ -1,0 +1,28 @@
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  text-align: center;
+  color: white;
+}
+
+.stat-box h2 {
+  font-size: 40px;
+  color: #38bdf8;
+  margin: 0;
+}
+
+.stat-box span {
+  font-size: 30px;
+  color: #38bdf8;
+}
+
+.stat-box p {
+  margin-top: 5px;
+  color: #cbd5f5;
+}
