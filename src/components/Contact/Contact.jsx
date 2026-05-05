@@ -9,7 +9,7 @@ function Contact() {
         <input placeholder="Name" />
         <input placeholder="Email" />
         <textarea placeholder="Message"></textarea>
-        <button id="send" onClick={}>Send</button>
+        <button id="send" >Send</button>
       </form>
     </section>
   );
