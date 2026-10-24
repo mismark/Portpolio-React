@@ -1,0 +1,274 @@
+.certificates {
+  background: var(--bg-primary);
+}
+
+.certs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* ── Card — vertical layout ───────────────────────────────────────────────── */
+.cert-card {
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+  box-shadow: 0 2px 10px rgba(15,23,42,0.07);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Accent top border */
+.cert-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--cert-color, var(--accent));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.cert-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(15,23,42,0.12);
+  border-color: #cbd5e1;
+}
+
+/* ── Image area — large, fills card width ─────────────────────────────────── */
+.cert-image-wrap {
+  width: 100%;
+  height: 180px;
+  background: color-mix(in srgb, var(--cert-color, var(--accent)) 8%, #f8fafc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cert-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.cert-card:hover .cert-image-wrap img {
+  transform: scale(1.03);
+}
+
+/* Placeholder icon when no image */
+.cert-icon-placeholder {
+  font-size: 3.5rem;
+  color: var(--cert-color, var(--accent));
+  opacity: 0.35;
+}
+
+/* ── Body ─────────────────────────────────────────────────────────────────── */
+.cert-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.cert-title {
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.cert-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cert-issuer {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.cert-date {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cert-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: 4px;
+  transition: var(--transition);
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(99,102,241,0.2);
+  background: var(--accent-glow);
+}
+
+.cert-link:hover {
+  background: rgba(99,102,241,0.15);
+  border-color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .certs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Clickable card cursor */
+.cert-card {
+  cursor: pointer;
+}
+
+.cert-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* View hint text */
+.cert-view-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-style: italic;
+  transition: var(--transition);
+}
+
+.cert-card:hover .cert-view-hint {
+  color: var(--accent);
+}
+
+/* ── Certificate Detail Modal ────────────────────────────────────────────── */
+.cert-modal-box {
+  max-width: 480px !important;
+  overflow: hidden;
+}
+
+.cert-modal-header {
+  position: relative;
+  padding: 36px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.cert-modal-header .modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+
+/* Large image inside modal */
+.cert-modal-image-wrap {
+  width: 100%;
+  max-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.7);
+}
+
+.cert-modal-image {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  padding: 8px;
+}
+
+.cert-modal-icon {
+  font-size: 5rem;
+  opacity: 0.25;
+  padding: 24px;
+}
+
+/* Modal body */
+.cert-modal-body {
+  padding: 24px 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cert-modal-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+/* Meta items */
+.cert-modal-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cert-modal-meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cert-modal-meta-icon {
+  font-size: 1rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.cert-modal-meta-item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cert-modal-meta-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
+.cert-modal-meta-value {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+/* CTA button */
+.cert-modal-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 0.9rem !important;
+  padding: 11px 24px !important;
+  align-self: flex-start;
+}
+
+/* Card footer — hint + direct link side by side */
+.cert-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}

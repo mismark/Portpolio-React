@@ -1,46 +1,47 @@
 import "./Socials.css";
-import {
-  FaGithub,
-  FaLinkedin,
-  FaInstagram,
-  FaTwitter,
-  FaTelegram,
-  FaFacebook,
-  FaGoogle
-} from "react-icons/fa";
+import { getPlatformMeta } from "../../utils/platformMeta";
 
-function Socials() {
+function Socials({ profile }) {
+  const fixed = [
+    { platform: "github",    href: profile?.github    },
+    { platform: "linkedin",  href: profile?.linkedin  },
+    { platform: "instagram", href: profile?.instagram },
+    { platform: "telegram",  href: profile?.telegram  },
+    { platform: "email",     href: profile?.email ? `mailto:${profile.email}` : null },
+  ].filter((l) => l.href);
+
+  const extras = (profile?.extraSocials || [])
+    .filter((s) => s.platform && s.url)
+    .map((s) => ({ platform: s.platform, href: s.url }));
+
+  const allLinks = [...fixed, ...extras];
+
   return (
-    <div className="socials">
-
-      <a href="https://github.com/mismark" target="_blank" rel="noreferrer" className="icon github">
-        <FaGithub />
-      </a>
-
-      <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="icon linkedin">
-        <FaLinkedin />
-      </a>
-
-      <a href="https://instagram.com/mismarkol2121" target="_blank" rel="noreferrer" className="icon instagram">
-        <FaInstagram />
-      </a>
-
-      <a href="https://twitter.com" target="_blank" rel="noreferrer" className="icon twitter">
-        <FaTwitter />
-      </a>
-
-      <a href="https://t.me/mismarkol" target="_blank" rel="noreferrer" className="icon telegram">
-        <FaTelegram />
-      </a>
-
-      <a href="https://facebook.com" target="_blank" rel="noreferrer" className="icon facebook">
-        <FaFacebook />
-      </a>
-
-      <a href="mailto:mismarkol903@email.com" className="icon google">
-        <FaGoogle />
-      </a>
-
+    <div className="socials-bar">
+      <div className="container">
+        <div className="socials-inner">
+          <span className="socials-label">Follow me on</span>
+          <div className="socials-links">
+            {allLinks.map((link, i) => {
+              const { icon, color, label } = getPlatformMeta(link.platform);
+              return (
+                <a
+                  key={`${link.platform}-${i}`}
+                  href={link.href}
+                  target={link.href.startsWith("mailto") ? "_self" : "_blank"}
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="social-btn"
+                  style={{ "--hover-color": color }}
+                  title={label}
+                >
+                  {icon}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

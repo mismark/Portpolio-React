@@ -1,31 +1,143 @@
 .about {
-  padding: 60px 20px;
+  background: var(--bg-secondary);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 72px;
+  align-items: center;
+}
+
+/* ── Image ─────────────────────────────────────────────── */
+.about-image-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.about-image-frame {
+  width: 320px;
+  height: 380px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow-card), var(--shadow-glow);
+  position: relative;
+}
+
+.about-image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about-badge {
+  position: absolute;
+  bottom: 20px;
+  right: -10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 20px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.about-badge strong {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.about-badge span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
   text-align: center;
-  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
 }
 
-.about p {
-  max-width: 700px;
-  margin: 20px auto;
-  line-height: 1.6;
-  color: #cbd5e1;
+/* ── Content ───────────────────────────────────────────── */
+.about-name {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
-/* CV BUTTON */
-.cv-btn {
-  display: inline-block;
-  margin-top: 25px;
-  padding: 12px 28px;
-  border-radius: 30px;
-  border: 1px solid #00e0ff;
-  color: #00e0ff;
-  text-decoration: none;
-  transition: 0.3s;
+.about-role {
+  font-size: 0.95rem;
+  color: var(--accent-light);
+  margin-bottom: 20px;
   font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
-.cv-btn:hover {
-  background: #00e0ff;
-  color: black;
-  box-shadow: 0 0 15px #00e0ff;
+.about-bio {
+  color: var(--text-secondary);
+  font-size: 0.97rem;
+  line-height: 1.8;
+  margin-bottom: 14px;
+}
+
+/* Info list */
+.about-info {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 24px 0 32px;
+}
+
+.about-info li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.92rem;
+}
+
+.info-icon {
+  color: var(--accent);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.info-label {
+  color: var(--text-secondary);
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  color: var(--text-primary);
+}
+
+.about-cv-btn {
+  margin-top: 4px;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .about-image-frame {
+    width: 260px;
+    height: 310px;
+    margin: 0 auto;
+  }
+
+  .about-badge {
+    right: calc(50% - 160px);
+  }
 }

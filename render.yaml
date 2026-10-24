@@ -1,0 +1,56 @@
+# ─── Render.com deployment ────────────────────────────────────────────────────
+# Single service: Express serves both the API and the built React frontend.
+# Docs: https://render.com/docs/render-yaml
+
+services:
+  - type: web
+    name: portfolio
+    env: node
+    region: oregon
+    plan: free
+
+    # 1. Install frontend deps  2. Build React app  3. Install backend deps
+    buildCommand: npm install && npm run build && cd backend && npm install
+
+    # Start the Express server — it serves /dist statically + all /api/* routes
+    startCommand: node backend/server.js
+
+    # Environment variables — set the ones marked sync:false in the Render dashboard
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: PORT
+        value: 10000
+
+      # MongoDB Atlas connection string — get free cluster at mongodb.com/atlas
+      - key: MONGO_URI
+        sync: false
+
+      # Strong admin password (min 12 chars recommended)
+      - key: ADMIN_PASSWORD
+        sync: false
+
+      # 64+ char random secret — generate at: randomkeygen.com
+      - key: JWT_SECRET
+        sync: false
+
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+      # Your Render service URL (set AFTER first deploy)
+      # e.g. https://portfolio.onrender.com
+      - key: CLIENT_URL
+        sync: false
+
+      # Leave empty — frontend and backend share the same Render domain
+      - key: VITE_API_URL
+        value: ""
+
+      # Optional: AI chat (free 1000 req/day) — get at aistudio.google.com/apikey
+      - key: GEMINI_API_KEY
+        sync: false
+
+      # Optional: OpenAI fallback — get at platform.openai.com/api-keys
+      - key: OPENAI_API_KEY
+        sync: false

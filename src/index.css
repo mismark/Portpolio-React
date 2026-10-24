@@ -1,12 +1,226 @@
-* {
+/* ─── Design Tokens ──────────────────────────────────────────────────────────── */
+:root {
+  --bg-primary:    #ffffff;
+  --bg-secondary:  #f8fafc;
+  --bg-card:       #ffffff;
+  --bg-card-hover: #f1f5f9;
+
+  --accent:        #6366f1;
+  --accent-light:  #4f46e5;
+  --accent-glow:   rgba(99, 102, 241, 0.12);
+  --accent-2:      #0891b2;
+
+  --text-primary:  #0f172a;
+  --text-secondary:#475569;
+  --text-muted:    #94a3b8;
+
+  --border:        rgba(99, 102, 241, 0.15);
+  --border-hover:  rgba(99, 102, 241, 0.4);
+
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  20px;
+  --radius-xl:  32px;
+
+  --shadow-card: 0 2px 16px rgba(15, 23, 42, 0.08);
+  --shadow-glow: 0 0 32px rgba(99, 102, 241, 0.12);
+
+  --transition: 0.3s ease;
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  background: #0b1a33;
-  color: white;
-  font-family: Arial, sans-serif;
+html {
   scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+/* ─── Utilities ──────────────────────────────────────────────────────────────── */
+.section {
+  padding: 100px 0;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 60px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: var(--transition);
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--accent-glow);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: transparent;
+  color: var(--accent-light);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-outline:hover {
+  background: var(--accent-glow);
+  border-color: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-light); }
+
+/* ─── Skeleton loading placeholders ─────────────────────────────────────────── */
+.skeleton-text {
+  display: block;
+  border-radius: var(--radius-sm);
+  height: 1em;
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #f1f5f9 50%,
+    #e2e8f0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-text.inline {
+  display: inline-block;
+  vertical-align: middle;
+  height: 0.9em;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Scroll-reveal animations ───────────────────────────────────────────────
+   Elements start hidden. The JS hook adds .revealed when they enter the viewport.
+   Four variants: fade-up (default), fade-left, fade-right, fade-in (no movement).
+   Use via className="reveal" or "reveal fade-left" etc.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* Base: hidden state */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.reveal.fade-left  { transform: translateX(-40px); }
+.reveal.fade-right { transform: translateX(40px);  }
+.reveal.fade-in    { transform: none;              }
+.reveal.fade-up    { transform: translateY(36px);  }
+
+/* Revealed state */
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Stagger helpers — apply to children inside a revealed container */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.reveal-stagger.revealed > *:nth-child(1)  { transition-delay: 0ms;   opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(2)  { transition-delay: 80ms;  opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(3)  { transition-delay: 160ms; opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(4)  { transition-delay: 240ms; opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(5)  { transition-delay: 320ms; opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(6)  { transition-delay: 400ms; opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(7)  { transition-delay: 480ms; opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(8)  { transition-delay: 560ms; opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(9)  { transition-delay: 640ms; opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(10) { transition-delay: 720ms; opacity: 1; transform: none; }
+.reveal-stagger.revealed > *:nth-child(n+11) { transition-delay: 800ms; opacity: 1; transform: none; }
+
+/* Respect user's motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-stagger > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
