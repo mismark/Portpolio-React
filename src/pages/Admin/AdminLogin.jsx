@@ -23,7 +23,8 @@ function AdminLogin() {
 
     try {
       // Use a fresh axios instance with no interceptors
-      const res = await axios.create().post("/api/auth/login", { password });
+      const API_BASE = import.meta.env.VITE_API_URL || "";
+      const res = await axios.create().post(`${API_BASE}/api/auth/login`, { password });
       localStorage.setItem("admin_token", res.data.token);
       navigate("/admin/dashboard");
     } catch (err) {
