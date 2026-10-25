@@ -37,7 +37,10 @@ const EMPTY_PROFILE = {
 const EMPTY_PW = { currentPassword: "", newPassword: "", confirmPassword: "" };
 
 function authApi(token) {
-  return axios.create({ headers: { Authorization: `Bearer ${token}` } });
+  return axios.create({
+    baseURL: import.meta.env.VITE_API_URL || "",
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 function Field({ label, hint, children }) {
