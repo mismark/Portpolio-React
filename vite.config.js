@@ -6,14 +6,13 @@ export default defineConfig({
   plugins: [react()],
 
   build: {
-    // Output to /dist at the project root — the Express server looks here
     outDir: 'dist',
     emptyOutDir: true,
   },
 
   server: {
     proxy: {
-      // Dev only: forward /api/* and /uploads/* to the Express backend
+      // Dev only: forward /api/* and /uploads/* to local Express backend
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
