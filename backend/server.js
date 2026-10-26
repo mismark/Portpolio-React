@@ -7,6 +7,7 @@ const connectDB    = require("./db");
 const errorHandler = require("./middleware/errorHandler");
 const protect      = require("./middleware/protect");
 const projects     = require("./routes/projects");
+const { createBot } = require("./telegramBot");
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -87,4 +88,16 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT} [${process.env.NODE_ENV}]`);
+
+  // ─── Telegram Bot (long-polling) ─────────────────────────────────────────
+  const bot = createBot();
+  if (bot) {
+    bot.launch()
+      .then(() => console.log("🤖 Telegram bot launched (long-polling)"))
+      .catch((err) => console.error("❌ Telegram bot failed to launch:", err?.message));
+
+    // Graceful shutdown
+    process.once("SIGINT",  () => bot.stop("SIGINT"));
+    process.once("SIGTERM", () => bot.stop("SIGTERM"));
+  }
 });

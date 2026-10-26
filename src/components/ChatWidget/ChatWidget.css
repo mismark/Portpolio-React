@@ -922,3 +922,31 @@
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.55; }
 }
+
+/* ── Telegram CTA button ──────────────────────────────────── */
+.chat-telegram-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 6px 12px 2px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #229ed9 0%, #1a7bbf 100%);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.chat-telegram-cta svg {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.chat-telegram-cta:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}

@@ -142,6 +142,21 @@ function Contact({ profile }) {
                 );
               })}
             </div>
+
+            {/* ── Telegram Support Bot CTA ── */}
+            <a
+              href="https://t.me/LihiketSupportBot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="telegram-support-cta"
+              aria-label="Chat with support bot on Telegram"
+            >
+              <FaTelegram />
+              <div className="telegram-support-text">
+                <span className="telegram-support-title">Telegram Support Bot</span>
+                <span className="telegram-support-sub">@LihiketSupportBot · Instant answers</span>
+              </div>
+            </a>
           </div>
 
           {/* ── Form column ── */}

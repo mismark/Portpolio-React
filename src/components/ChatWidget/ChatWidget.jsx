@@ -3,7 +3,7 @@ import axios from "axios";
 import "./ChatWidget.css";
 import {
   FaTimes, FaPaperPlane, FaRobot, FaRegCopy, FaCheck,
-  FaMicrophone,
+  FaMicrophone, FaTelegram,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
 
@@ -236,7 +236,6 @@ export default function ChatWidget({ profile }) {
   const clearChat = () => {
     setMessages([]);
     setShowSugg(true);
-    stopSpeaking();
   };
 
   // ── Render ───────────────────────────────────────────────────────────────
@@ -367,6 +366,18 @@ export default function ChatWidget({ profile }) {
           <p className="chat-footer-note">
             <HiSparkles /> Powered by AI · Tap 🎤 to speak
           </p>
+
+          {/* ── Telegram CTA — always visible, bot link as fallback ── */}
+          <a
+            className="chat-telegram-cta"
+            href={profile?.telegram || "https://t.me/LihiketSupportBot"}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Chat on Telegram"
+          >
+            <FaTelegram />
+            <span>Chat on Telegram Support Bot</span>
+          </a>
 
         </div>
       </div>
