@@ -3,7 +3,7 @@ import axios from "axios";
 import "./ChatWidget.css";
 import {
   FaTimes, FaPaperPlane, FaRobot, FaRegCopy, FaCheck,
-  FaMicrophone, FaVolumeUp, FaVolumeMute,
+  FaMicrophone,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
 
@@ -63,15 +63,6 @@ function formatTime(date) {
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-function stripMarkdown(text) {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/^[•\-\*]\s+/gm, "")
-    .replace(/\n{2,}/g, ". ")
-    .replace(/\n/g, " ")
-    .trim();
-}
-
 // ── Copy button ───────────────────────────────────────────────────────────────
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
@@ -102,19 +93,13 @@ export default function ChatWidget({ profile }) {
   const [unread, setUnread]       = useState(0);
   const [showSugg, setShowSugg]   = useState(true);
 
-  // Voice state — off by default until user explicitly enables it
+  // Voice input state (mic only — TTS disabled)
   const [listening, setListening] = useState(false);
-  const [speaking, setSpeaking]   = useState(false);
-  const [voiceOn, setVoiceOn]     = useState(() => {
-    try { return localStorage.getItem("chat_voice") === "on"; }
-    catch { return false; }
-  });
   const [micSupported, setMicSupported] = useState(true);
 
   const messagesEndRef = useRef(null);
   const inputRef       = useRef(null);
   const recognitionRef = useRef(null);
-  const synthRef       = useRef(window.speechSynthesis || null);
 
   const firstName = profile?.name?.split(" ")[0] ?? "Mekuanint";
 
@@ -162,7 +147,6 @@ export default function ChatWidget({ profile }) {
         time:    new Date(),
       };
       setMessages([greeting]);
-      // Voice is off by default — no auto-speak on greeting
     }
     setTimeout(() => inputRef.current?.focus(), 150);
   }, [open]);
@@ -172,49 +156,6 @@ export default function ChatWidget({ profile }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // ── Stop speech when closed ──────────────────────────────────────────────
-  useEffect(() => {
-    if (!open) stopSpeaking();
-  }, [open]);
-
-  // ── TTS ──────────────────────────────────────────────────────────────────
-  const speakText = useCallback((text) => {
-    if (!voiceOn || !synthRef.current) return;
-    synthRef.current.cancel();
-
-    const clean = stripMarkdown(text);
-    const utter = new SpeechSynthesisUtterance(clean);
-
-    // Load voices — may need to wait for onvoiceschanged
-    const assignVoice = () => {
-      const voices = synthRef.current.getVoices();
-      const best   = voices.find((v) =>
-        (v.name.includes("Google") || v.name.includes("Natural")) && v.lang.startsWith("en")
-      ) || voices.find((v) => v.lang.startsWith("en-US"));
-      if (best) utter.voice = best;
-    };
-
-    if (synthRef.current.getVoices().length > 0) {
-      assignVoice();
-    } else {
-      synthRef.current.onvoiceschanged = () => { assignVoice(); };
-    }
-
-    utter.rate   = 0.97;
-    utter.pitch  = 1.0;
-    utter.volume = 1.0;
-    utter.onstart = () => setSpeaking(true);
-    utter.onend   = () => setSpeaking(false);
-    utter.onerror = () => setSpeaking(false);
-
-    synthRef.current.speak(utter);
-  }, [voiceOn]);
-
-  const stopSpeaking = useCallback(() => {
-    synthRef.current?.cancel();
-    setSpeaking(false);
-  }, []);
-
   // ── Mic toggle ────────────────────────────────────────────────────────────
   const toggleMic = useCallback(() => {
     const rec = recognitionRef.current;
@@ -222,13 +163,11 @@ export default function ChatWidget({ profile }) {
       alert("Your browser does not support voice input. Please use Chrome or Edge.");
       return;
     }
-
     if (listening) {
       rec.stop();
       setListening(false);
     } else {
       setInput("");
-      stopSpeaking();
       try {
         rec.start();
         setListening(true);
@@ -236,7 +175,7 @@ export default function ChatWidget({ profile }) {
         console.warn("Mic start error:", e.message);
       }
     }
-  }, [listening, stopSpeaking]);
+  }, [listening]);
 
   // ── Send helpers ─────────────────────────────────────────────────────────
   const sendVoice = useCallback(async (text) => {
@@ -256,7 +195,6 @@ export default function ChatWidget({ profile }) {
 
   const doSend = async (msg) => {
     setShowSugg(false);
-    stopSpeaking();
 
     const userMsg = { role: "user", content: msg, time: new Date() };
     const next    = [...messages, userMsg];
@@ -273,9 +211,6 @@ export default function ChatWidget({ profile }) {
       const aMsg  = { role: "assistant", content: reply, time: new Date() };
       setMessages((prev) => [...prev, aMsg]);
       if (!open) setUnread((n) => n + 1);
-
-      // Speak the response
-      setTimeout(() => speakText(reply), 200);
     } catch (err) {
       const errMsg = err.response?.data?.message || "Something went wrong. Please try again.";
       setMessages((prev) => [...prev, { role: "assistant", content: errMsg, time: new Date() }]);
@@ -338,26 +273,11 @@ export default function ChatWidget({ profile }) {
               <p className="chat-header-title">{firstName}'s AI Assistant</p>
               <p className="chat-header-sub">
                 <span className="online-dot" />
-                {speaking ? " Speaking…" : listening ? " Listening…" : " Online · Always here"}
+                {listening ? " Listening…" : " Online · Always here"}
               </p>
             </div>
           </div>
           <div className="chat-header-actions">
-            {/* Voice on/off toggle */}
-            <button
-              className={`chat-hdr-btn voice-toggle-btn${voiceOn ? " voice-on" : " voice-off"}${speaking ? " speaking" : ""}`}
-              onClick={() => {
-                const next = !voiceOn;
-                setVoiceOn(next);
-                try { localStorage.setItem("chat_voice", next ? "on" : "off"); } catch {}
-                if (!next && speaking) stopSpeaking();
-              }}
-              title={voiceOn ? "Voice responses ON — click to mute" : "Voice responses OFF — click to enable"}
-              aria-label="Toggle voice"
-            >
-              {voiceOn ? <FaVolumeUp /> : <FaVolumeMute />}
-            </button>
-
             {messages.length > 1 && (
               <button className="chat-hdr-btn" onClick={clearChat} title="Clear chat">↺</button>
             )}
@@ -379,18 +299,7 @@ export default function ChatWidget({ profile }) {
               <div className="chat-bubble-wrap">
                 <div className={`chat-bubble ${m.role}`}>
                   <div className="bubble-content">{renderText(m.content)}</div>
-                  {m.role === "assistant" && (
-                    <>
-                      <CopyButton text={m.content} />
-                      <button
-                        className="bubble-speak"
-                        onClick={() => speakText(m.content)}
-                        title="Read aloud"
-                      >
-                        <FaVolumeUp />
-                      </button>
-                    </>
-                  )}
+                  {m.role === "assistant" && <CopyButton text={m.content} />}
                 </div>
                 <span className="bubble-time">{m.time ? formatTime(m.time) : ""}</span>
               </div>
@@ -416,18 +325,7 @@ export default function ChatWidget({ profile }) {
         {/* Input area */}
         <div className="chat-input-area">
 
-          {/* Status bar */}
-          {(listening || speaking) && (
-            <div className={`voice-status-bar${listening ? " listening" : " speaking"}`}>
-              <span className="vsb-dot" />
-              {listening
-                ? "Listening… speak your question"
-                : <>Speaking… <button className="vsb-stop" onClick={stopSpeaking}>Stop</button></>
-              }
-            </div>
-          )}
-
-          {/* Input row — mic LEFT, textarea CENTER, send RIGHT */}
+          {/* Input row */}
           <div className={`chat-input-row${listening ? " is-listening" : ""}`}>
 
             {/* ── MIC BUTTON — always visible on the left ── */}
@@ -469,6 +367,7 @@ export default function ChatWidget({ profile }) {
           <p className="chat-footer-note">
             <HiSparkles /> Powered by AI · Tap 🎤 to speak
           </p>
+
         </div>
       </div>
     </>
