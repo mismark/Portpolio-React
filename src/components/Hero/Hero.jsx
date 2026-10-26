@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./Hero.css";
 import defaultProfileImg from "../../assets/profile.jpg";
 import { FaArrowDown, FaDownload } from "react-icons/fa";
+import ParticleCanvas from "./ParticleCanvas";
 
 // Fallback titles used before profile loads
 const DEFAULT_TITLES = [
@@ -70,6 +71,7 @@ function Hero({ profile, loading }) {
 
   return (
     <section className="hero section" id="home">
+      <ParticleCanvas />
       <div className="container hero-inner">
         {/* ── Text side ── */}
         <div className="hero-text">

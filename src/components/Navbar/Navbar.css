@@ -14,6 +14,11 @@
   box-shadow: 0 1px 0 var(--border), 0 2px 12px rgba(15, 23, 42, 0.06);
 }
 
+[data-theme="dark"] .navbar.scrolled {
+  background: rgba(15, 23, 42, 0.92);
+  box-shadow: 0 1px 0 var(--border), 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
 .nav-inner {
   max-width: 1100px;
   margin: 0 auto;
@@ -103,6 +108,10 @@
   transition: max-height 0.35s ease;
 }
 
+[data-theme="dark"] .mobile-menu {
+  background: rgba(15, 23, 42, 0.98);
+}
+
 .mobile-menu.open {
   max-height: 400px;
 }
@@ -128,11 +137,65 @@
   justify-content: center;
 }
 
+/* Dark mode toggle */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.mobile-bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.mobile-bottom-row .theme-toggle {
+  width: auto;
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  gap: 8px;
+  font-size: 0.88rem;
+}
+
+.mobile-bottom-row .theme-toggle span {
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.mobile-bottom-row .btn-primary {
+  flex: 1;
+  justify-content: center;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .nav-links,
   .nav-cta {
     display: none;
+  }
+
+  .theme-toggle {
+    display: none; /* shown in mobile menu instead */
   }
 
   .hamburger {
@@ -142,5 +205,11 @@
 
   .mobile-menu {
     display: flex;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-bottom-row {
+    display: none;
   }
 }

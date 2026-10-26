@@ -24,6 +24,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 60px;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Text ─────────────────────────────────────────────── */
@@ -178,6 +180,7 @@
   font-size: 0.9rem;
   animation: bounce 2s ease-in-out infinite;
   transition: var(--transition);
+  z-index: 1;
 }
 
 .scroll-cue:hover {

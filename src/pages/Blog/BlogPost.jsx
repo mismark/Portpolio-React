@@ -5,10 +5,31 @@ import "./Blog.css";
 import Navbar  from "../../components/Navbar/Navbar";
 import Footer  from "../../components/Footer/Footer";
 import useProfile from "../../hooks/useProfile";
+import useSEO from "../../hooks/useSEO";
 import {
   FaCalendarAlt, FaClock, FaEye, FaTag,
   FaArrowLeft, FaShare,
 } from "react-icons/fa";
+
+/* ── Reading progress bar ──────────────────────────────────────────────────── */
+function ReadingProgress() {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const el  = document.documentElement;
+      const top = el.scrollTop  || document.body.scrollTop;
+      const h   = el.scrollHeight - el.clientHeight;
+      setPct(h > 0 ? Math.min(100, (top / h) * 100) : 0);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <div className="reading-progress-track" aria-hidden="true">
+      <div className="reading-progress-bar" style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -43,7 +64,7 @@ function renderContent(text = "") {
     });
 }
 
-function BlogPost() {
+function BlogPost({ dark, onToggleDark }) {
   const { slug } = useParams();
   const navigate  = useNavigate();
   const [post, setPost]       = useState(null);
@@ -53,6 +74,17 @@ function BlogPost() {
   const { profile } = useProfile();
 
   const API_BASE = import.meta.env.VITE_API_URL || "";
+
+  // SEO — updates whenever post loads
+  const ogImage = post?.coverImage
+    ? (post.coverImage.startsWith("/uploads") ? `${API_BASE}${post.coverImage}` : post.coverImage)
+    : undefined;
+  useSEO({
+    title:       post?.title,
+    description: post?.excerpt,
+    image:       ogImage,
+    type:        "article",
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -72,7 +104,7 @@ function BlogPost() {
   if (loading) {
     return (
       <>
-        <Navbar profile={profile} />
+        <Navbar profile={profile} dark={dark} onToggleDark={onToggleDark} />
         <div className="blog-page">
           <div className="container post-skeleton-page">
             <div className="post-skeleton" style={{ height: 320 }} />
@@ -89,7 +121,7 @@ function BlogPost() {
   if (notFound || !post) {
     return (
       <>
-        <Navbar profile={profile} />
+        <Navbar profile={profile} dark={dark} onToggleDark={onToggleDark} />
         <div className="blog-page">
           <div className="container post-not-found">
             <h1>404</h1>
@@ -104,7 +136,8 @@ function BlogPost() {
 
   return (
     <>
-      <Navbar profile={profile} />
+      <ReadingProgress />
+      <Navbar profile={profile} dark={dark} onToggleDark={onToggleDark} />
 
       <div className="blog-page">
         {/* Cover */}

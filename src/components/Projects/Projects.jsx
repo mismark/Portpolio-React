@@ -7,6 +7,8 @@ import {
 } from "react-icons/fa";
 import useScrollReveal from "../../hooks/useScrollReveal";
 
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
 const FALLBACK = [
   {
     _id: "1",
@@ -84,7 +86,11 @@ function ProjectModal({ project, onClose }) {
         {/* Image if exists */}
         {project.image && (
           <div className="modal-image-wrap">
-            <img src={project.image} alt={project.title} className="modal-image" />
+            <img
+              src={project.image.startsWith("/uploads") ? `${API_BASE}${project.image}` : project.image}
+              alt={project.title}
+              className="modal-image"
+            />
           </div>
         )}
 
@@ -166,7 +172,17 @@ function Projects() {
               <article key={project._id} className="project-card">
                 {project.featured && <span className="project-featured-badge">Featured</span>}
 
-                <div className="project-icon"><FaCode /></div>
+                {/* Project image thumbnail */}
+                {project.image ? (
+                  <div className="project-thumb">
+                    <img
+                      src={project.image.startsWith("/uploads") ? `${API_BASE}${project.image}` : project.image}
+                      alt={project.title}
+                    />
+                  </div>
+                ) : (
+                  <div className="project-icon"><FaCode /></div>
+                )}
                 <h3 className="project-title">{project.title}</h3>
                 <p className="project-desc">{project.description}</p>
 

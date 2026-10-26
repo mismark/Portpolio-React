@@ -983,3 +983,84 @@
   background: rgba(99, 102, 241, 0.4);
   color: #fff;
 }
+
+/* ─── Analytics Tab ─────────────────────────────────────────────────────────── */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.analytics-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  border-top: 3px solid var(--card-accent, var(--accent));
+}
+
+.analytics-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.analytics-card::before {
+  content: "";
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  background: radial-gradient(circle at top right, var(--card-accent, var(--accent)), transparent 70%);
+  opacity: 0.08;
+  border-radius: 0 var(--radius-lg) 0 0;
+}
+
+.analytics-card-value {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--card-accent, var(--accent));
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.analytics-card-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.analytics-card-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Rank badge in top posts */
+.analytics-rank {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  min-width: 28px;
+  flex-shrink: 0;
+}
+
+/* Views count pill */
+.analytics-views {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-2);
+  background: rgba(8,145,178,0.1);
+  border: 1px solid rgba(8,145,178,0.2);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+@media (max-width: 600px) {
+  .analytics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

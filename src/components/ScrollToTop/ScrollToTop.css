@@ -1,0 +1,43 @@
+.scroll-top-btn {
+  position: fixed;
+  bottom: 96px; /* sit above the chat FAB */
+  right: 28px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  z-index: 900;
+  opacity: 0;
+  transform: translateY(16px) scale(0.85);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.scroll-top-btn.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.scroll-top-btn:hover {
+  box-shadow: 0 8px 24px var(--accent-glow);
+  transform: translateY(-3px) scale(1.08);
+}
+
+@media (max-width: 480px) {
+  .scroll-top-btn {
+    bottom: 88px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 0.88rem;
+  }
+}

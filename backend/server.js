@@ -50,11 +50,12 @@ app.use("/api/auth",        require("./routes/auth"));
 app.use("/api/contact",     require("./routes/contact"));
 app.use("/api/profile",     require("./routes/profile"));
 
-app.get(   "/api/projects",     projects.getAll);
-app.get(   "/api/projects/:id", projects.getOne);
-app.post(  "/api/projects",     protect, projects.create);
-app.put(   "/api/projects/:id", protect, projects.update);
-app.delete("/api/projects/:id", protect, projects.remove);
+app.get(   "/api/projects",          projects.getAll);
+app.get(   "/api/projects/:id",      projects.getOne);
+app.post(  "/api/projects",          protect, projects.create);
+app.put(   "/api/projects/:id",      protect, projects.update);
+app.delete("/api/projects/:id",      protect, projects.remove);
+app.use(   "/api/projects",          projects.router);
 
 app.use("/api/seed",         protect, require("./routes/seed"));
 app.use("/api/experience",   require("./routes/experience"));

@@ -5,6 +5,7 @@ import "./Blog.css";
 import Navbar  from "../../components/Navbar/Navbar";
 import Footer  from "../../components/Footer/Footer";
 import useProfile from "../../hooks/useProfile";
+import useSEO from "../../hooks/useSEO";
 import {
   FaCalendarAlt, FaClock, FaEye, FaTag, FaSearch,
   FaArrowRight,
@@ -107,12 +108,13 @@ function PostCard({ post }) {
   );
 }
 
-function BlogList() {
+function BlogList({ dark, onToggleDark }) {
   const [posts, setPosts]       = useState(FALLBACK);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState("");
   const [activeTag, setActiveTag] = useState("All");
   const { profile } = useProfile();
+  useSEO({ title: "Blog", description: "Thoughts on web development, tech, and things I've learned building software." });
 
   useEffect(() => {
     axios.get("/api/posts")
@@ -135,7 +137,7 @@ function BlogList() {
 
   return (
     <>
-      <Navbar profile={profile} />
+      <Navbar profile={profile} dark={dark} onToggleDark={onToggleDark} />
 
       <div className="blog-page">
         {/* Hero banner */}

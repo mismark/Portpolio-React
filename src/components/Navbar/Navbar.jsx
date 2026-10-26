@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaTimes, FaMoon, FaSun } from "react-icons/fa";
 
 const navLinks = [
   { label: "Home",         href: "#home"        },
@@ -15,7 +15,7 @@ const navLinks = [
   { label: "Contact",      href: "#contact"      },
 ];
 
-function Navbar({ profile }) {
+function Navbar({ profile, dark, onToggleDark }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active,   setActive]   = useState("home");
@@ -54,11 +54,9 @@ function Navbar({ profile }) {
   const handleLinkClick = (link) => {
     setMenuOpen(false);
     if (link.page) {
-      // Navigate to a real route (/blog)
       navigate(link.href);
       return;
     }
-    // Anchor link — if not on home, go home first then scroll
     if (!isHome) {
       navigate("/");
       setTimeout(() => {
@@ -105,6 +103,16 @@ function Navbar({ profile }) {
           ))}
         </nav>
 
+        {/* Dark mode toggle */}
+        <button
+          className="theme-toggle"
+          onClick={onToggleDark}
+          aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+          title={dark ? "Light mode" : "Dark mode"}
+        >
+          {dark ? <FaSun /> : <FaMoon />}
+        </button>
+
         <a
           href="#contact"
           className="btn-primary nav-cta"
@@ -134,13 +142,23 @@ function Navbar({ profile }) {
             {link.label}
           </a>
         ))}
-        <a
-          href="#contact"
-          className="btn-primary"
-          onClick={(e) => { e.preventDefault(); handleLinkClick({ href: "#contact" }); }}
-        >
-          Hire Me
-        </a>
+        <div className="mobile-bottom-row">
+          <button
+            className="theme-toggle"
+            onClick={onToggleDark}
+            aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {dark ? <FaSun /> : <FaMoon />}
+            <span>{dark ? "Light Mode" : "Dark Mode"}</span>
+          </button>
+          <a
+            href="#contact"
+            className="btn-primary"
+            onClick={(e) => { e.preventDefault(); handleLinkClick({ href: "#contact" }); }}
+          >
+            Hire Me
+          </a>
+        </div>
       </div>
     </header>
   );

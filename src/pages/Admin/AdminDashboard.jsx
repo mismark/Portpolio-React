@@ -10,7 +10,8 @@ import {
   FaCheckCircle, FaRegCircle, FaFilePdf, FaKeyboard,
   FaBriefcase, FaTools, FaCertificate, FaQuoteRight,
   FaMapMarkerAlt, FaNewspaper, FaGlobe, FaEdit,
-  FaToggleOn, FaToggleOff, FaImage,
+  FaToggleOn, FaToggleOff, FaImage, FaChartBar,
+  FaInbox, FaProjectDiagram, FaEye as FaViews,
 } from "react-icons/fa";
 import PlatformPicker from "./PlatformPicker";
 import { getPlatformMeta } from "../../utils/platformMeta";
@@ -76,6 +77,10 @@ export default function AdminDashboard() {
   const [seedLoading,     setSeedLoading]     = useState(false);
   const [seedMsg,         setSeedMsg]         = useState(null);
 
+  // Project image upload
+  const [projImgUploading, setProjImgUploading] = useState(null); // project _id
+  const projImgRefs = useRef({});
+
   // ── Messages ──
   const [messages,        setMessages]        = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
@@ -105,6 +110,9 @@ export default function AdminDashboard() {
   const [expSubmitting, setExpSubmitting] = useState(false);
   const [expMsg,        setExpMsg]        = useState(null);
   const [deletingExpId, setDeletingExpId] = useState(null);
+  const [editingExpId,  setEditingExpId]  = useState(null);
+  const [editExpForm,   setEditExpForm]   = useState({});
+  const [editExpSaving, setEditExpSaving] = useState(false);
 
   // ── Services ──
   const EMPTY_SVC = { title: "", description: "", icon: "FaCode", features: "", price: "", order: 0 };
@@ -113,6 +121,9 @@ export default function AdminDashboard() {
   const [svcSubmitting, setSvcSubmitting] = useState(false);
   const [svcMsg,        setSvcMsg]        = useState(null);
   const [deletingSvcId, setDeletingSvcId] = useState(null);
+  const [editingSvcId,  setEditingSvcId]  = useState(null);
+  const [editSvcForm,   setEditSvcForm]   = useState({});
+  const [editSvcSaving, setEditSvcSaving] = useState(false);
 
   // ── Certificates ──
   const EMPTY_CERT = { title: "", issuer: "", date: "", credentialUrl: "", order: 0 };
@@ -121,8 +132,8 @@ export default function AdminDashboard() {
   const [certSubmitting,  setCertSubmitting]  = useState(false);
   const [certMsg,         setCertMsg]         = useState(null);
   const [deletingCertId,  setDeletingCertId]  = useState(null);
-  const [certImgUploading,setCertImgUploading]= useState(null); // cert _id being uploaded
-  const certImgRefs = useRef({});  // map of cert._id → <input> ref
+  const [certImgUploading,setCertImgUploading]= useState(null);
+  const certImgRefs = useRef({});
 
   // ── Testimonials ──
   const EMPTY_TEST = { name: "", role: "", message: "", rating: 5, order: 0 };
@@ -131,6 +142,9 @@ export default function AdminDashboard() {
   const [testSubmitting,  setTestSubmitting]  = useState(false);
   const [testMsg,         setTestMsg]         = useState(null);
   const [deletingTestId,  setDeletingTestId]  = useState(null);
+  const [editingTestId,   setEditingTestId]   = useState(null);
+  const [editTestForm,    setEditTestForm]    = useState({});
+  const [editTestSaving,  setEditTestSaving]  = useState(false);
 
   // ── Blog posts ──
   const EMPTY_POST = { title: "", slug: "", excerpt: "", content: "", tags: "", published: false };
@@ -142,8 +156,12 @@ export default function AdminDashboard() {
   const [editingPost,     setEditingPost]     = useState(null);
   const [editPostForm,    setEditPostForm]    = useState({});
   const [editPostSaving,  setEditPostSaving]  = useState(false);
-  const [thumbUploading,  setThumbUploading]  = useState(null); // post _id being uploaded
-  const thumbInputRefs = useRef({});  // map of post._id → <input> ref
+  const [thumbUploading,  setThumbUploading]  = useState(null);
+  const thumbInputRefs = useRef({});
+
+  // ── Analytics ──
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   // ─── Auto-logout on 401 ──────────────────────────────────────────────────
   useEffect(() => {
@@ -248,6 +266,45 @@ export default function AdminDashboard() {
     navigate("/admin");
   };
 
+  // ─── Analytics fetch ──────────────────────────────────────────────────────
+  const fetchAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true);
+    try {
+      const [projRes, msgRes, postRes, certRes, expRes, svcRes, testRes] = await Promise.all([
+        axios.get("/api/projects"),
+        authApi(token).get("/api/contact"),
+        authApi(token).get("/api/posts/all"),
+        axios.get("/api/certificates"),
+        axios.get("/api/experience"),
+        axios.get("/api/services"),
+        axios.get("/api/testimonials"),
+      ]);
+      const posts    = postRes.data.data  || [];
+      const msgs     = msgRes.data.data   || [];
+      const projects = projRes.data.data  || [];
+      setAnalytics({
+        totalProjects:    projects.length,
+        featuredProjects: projects.filter((p) => p.featured).length,
+        totalMessages:    msgs.length,
+        unreadMessages:   msgs.filter((m) => !m.read).length,
+        totalPosts:       posts.length,
+        publishedPosts:   posts.filter((p) => p.published).length,
+        totalViews:       posts.reduce((s, p) => s + (p.views || 0), 0),
+        totalCerts:       (certRes.data.data || []).length,
+        totalExp:         (expRes.data.data  || []).length,
+        totalServices:    (svcRes.data.data  || []).length,
+        totalTestimonials:(testRes.data.data || []).length,
+        recentMessages:   msgs.slice(0, 5),
+        topPosts:         [...posts].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5),
+      });
+    } catch { /* ignore */ }
+    finally { setAnalyticsLoading(false); }
+  }, [token]);
+
+  useEffect(() => {
+    if (activeTab === "analytics") fetchAnalytics();
+  }, [activeTab, fetchAnalytics]);
+
   // ─── Messages ─────────────────────────────────────────────────────────────
 
   const handleToggleRead = async (msg) => {
@@ -342,8 +399,26 @@ export default function AdminDashboard() {
     finally { setEditSaving(false); }
   };
 
-  const handleSeed = async (force = false) => {
-    if (force && !window.confirm("Wipe all projects and reseed defaults?")) return;
+  const handleProjImgUpload = async (projId, file) => {
+    if (!file) return;
+    setProjImgUploading(projId);
+    const fd = new FormData();
+    fd.append("image", file);
+    try {
+      const res = await authApi(token).post(`/api/projects/${projId}/image`, fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setProjects((prev) =>
+        prev.map((p) => (p._id === projId ? { ...p, image: res.data.image } : p))
+      );
+    } catch (err) {
+      alert(err.response?.data?.message || "Image upload failed.");
+    } finally {
+      setProjImgUploading(null);
+    }
+  };
+
+  const handleSeed = async (force = false) => {    if (force && !window.confirm("Wipe all projects and reseed defaults?")) return;
     setSeedLoading(true); setSeedMsg(null);
     try {
       const res = await authApi(token).post("/api/seed", { force });
@@ -515,6 +590,34 @@ export default function AdminDashboard() {
     finally { setDeletingExpId(null); }
   };
 
+  const startEditExp = (item) => {
+    setEditingExpId(item._id);
+    setEditExpForm({
+      type:         item.type         || "work",
+      title:        item.title        || "",
+      organization: item.organization || "",
+      location:     item.location     || "",
+      startDate:    item.startDate    || "",
+      endDate:      item.endDate      || "Present",
+      current:      item.current      || false,
+      description:  item.description  || "",
+      order:        item.order        || 0,
+    });
+  };
+  const handleEditExpChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEditExpForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
+  };
+  const saveEditExp = async (id) => {
+    setEditExpSaving(true);
+    try {
+      const res = await authApi(token).put(`/api/experience/${id}`, editExpForm);
+      setExpItems((prev) => prev.map((i) => (i._id === id ? res.data.data : i)));
+      setEditingExpId(null);
+    } catch (err) { alert(err.response?.data?.message || "Update failed."); }
+    finally { setEditExpSaving(false); }
+  };
+
   // ─── Services handlers ────────────────────────────────────────────────────
   const handleSvcChange = (e) => {
     const { name, value } = e.target;
@@ -542,6 +645,35 @@ export default function AdminDashboard() {
       setSvcItems((prev) => prev.filter((i) => i._id !== id));
     } catch (err) { alert(err.response?.data?.message || "Delete failed."); }
     finally { setDeletingSvcId(null); }
+  };
+
+  const startEditSvc = (item) => {
+    setEditingSvcId(item._id);
+    setEditSvcForm({
+      title:       item.title       || "",
+      description: item.description || "",
+      icon:        item.icon        || "FaCode",
+      features:    (item.features   || []).join("\n"),
+      price:       item.price       || "",
+      order:       item.order       || 0,
+    });
+  };
+  const handleEditSvcChange = (e) => {
+    const { name, value } = e.target;
+    setEditSvcForm((f) => ({ ...f, [name]: value }));
+  };
+  const saveEditSvc = async (id) => {
+    setEditSvcSaving(true);
+    try {
+      const res = await authApi(token).put(`/api/services/${id}`, {
+        ...editSvcForm,
+        features: editSvcForm.features.split("\n").map((f) => f.trim()).filter(Boolean),
+        order: Number(editSvcForm.order) || 0,
+      });
+      setSvcItems((prev) => prev.map((i) => (i._id === id ? res.data.data : i)));
+      setEditingSvcId(null);
+    } catch (err) { alert(err.response?.data?.message || "Update failed."); }
+    finally { setEditSvcSaving(false); }
   };
 
   // ─── Certificates handlers ────────────────────────────────────────────────
@@ -615,6 +747,34 @@ export default function AdminDashboard() {
       setTestItems((prev) => prev.filter((i) => i._id !== id));
     } catch (err) { alert(err.response?.data?.message || "Delete failed."); }
     finally { setDeletingTestId(null); }
+  };
+
+  const startEditTest = (item) => {
+    setEditingTestId(item._id);
+    setEditTestForm({
+      name:    item.name    || "",
+      role:    item.role    || "",
+      message: item.message || "",
+      rating:  item.rating  ?? 5,
+      order:   item.order   || 0,
+    });
+  };
+  const handleEditTestChange = (e) => {
+    const { name, value } = e.target;
+    setEditTestForm((f) => ({ ...f, [name]: value }));
+  };
+  const saveEditTest = async (id) => {
+    setEditTestSaving(true);
+    try {
+      const res = await authApi(token).put(`/api/testimonials/${id}`, {
+        ...editTestForm,
+        rating: Number(editTestForm.rating) || 5,
+        order:  Number(editTestForm.order)  || 0,
+      });
+      setTestItems((prev) => prev.map((i) => (i._id === id ? res.data.data : i)));
+      setEditingTestId(null);
+    } catch (err) { alert(err.response?.data?.message || "Update failed."); }
+    finally { setEditTestSaving(false); }
   };
 
   // ─── Blog posts handlers ──────────────────────────────────────────────────
@@ -721,6 +881,7 @@ export default function AdminDashboard() {
         </div>
         <nav className="sidebar-nav">
           {[
+            { id: "analytics",    icon: <FaChartBar />,   label: "Analytics",    count: null },
             { id: "projects",     icon: <FaLayerGroup />, label: "Projects",     count: projects.length,  countClass: "" },
             { id: "messages",     icon: <FaEnvelope />,   label: "Messages",     count: messages.length, unread: unreadCount, countClass: unreadCount ? "badge-alert" : "" },
             { id: "experience",   icon: <FaBriefcase />,  label: "Experience",   count: expItems.length,  countClass: "" },
@@ -748,6 +909,106 @@ export default function AdminDashboard() {
 
       {/* ── Main ── */}
       <main className="dash-main">
+
+        {/* ═══════════════ ANALYTICS ═══════════════ */}
+        {activeTab === "analytics" && (
+          <>
+            <div className="dash-header">
+              <h1>Analytics</h1>
+              <span className="dash-count">Overview of your portfolio</span>
+            </div>
+
+            {analyticsLoading || !analytics ? (
+              <div className="dash-skeleton">{[...Array(6)].map((_, i) => <div key={i} className="skeleton-row" style={{ height: 80 }} />)}</div>
+            ) : (
+              <>
+                {/* ── Stat cards grid ── */}
+                <div className="analytics-grid">
+                  {[
+                    { label: "Total Projects",    value: analytics.totalProjects,     sub: `${analytics.featuredProjects} featured`,   color: "#6366f1" },
+                    { label: "Contact Messages",  value: analytics.totalMessages,     sub: `${analytics.unreadMessages} unread`,       color: "#f59e0b" },
+                    { label: "Blog Posts",        value: analytics.totalPosts,        sub: `${analytics.publishedPosts} published`,    color: "#10b981" },
+                    { label: "Total Post Views",  value: analytics.totalViews,        sub: "across all posts",                         color: "#0891b2" },
+                    { label: "Certificates",      value: analytics.totalCerts,        sub: "uploaded",                                 color: "#8b5cf6" },
+                    { label: "Experience",        value: analytics.totalExp,          sub: "entries",                                  color: "#ec4899" },
+                    { label: "Services",          value: analytics.totalServices,     sub: "listed",                                   color: "#f97316" },
+                    { label: "Testimonials",      value: analytics.totalTestimonials, sub: "collected",                               color: "#14b8a6" },
+                  ].map(({ label, value, sub, color }) => (
+                    <div key={label} className="analytics-card" style={{ "--card-accent": color }}>
+                      <div className="analytics-card-value">{value}</div>
+                      <div className="analytics-card-label">{label}</div>
+                      <div className="analytics-card-sub">{sub}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ── Recent messages ── */}
+                <section className="dash-card">
+                  <div className="dash-card-header">
+                    <h2 className="dash-card-title"><FaEnvelope /> Recent Messages</h2>
+                    <button className="btn-outline seed-btn" onClick={() => setActiveTab("messages")}>View All</button>
+                  </div>
+                  {analytics.recentMessages.length === 0 ? (
+                    <p className="dash-empty">No messages yet.</p>
+                  ) : (
+                    <ul className="project-list">
+                      {analytics.recentMessages.map((m) => (
+                        <li key={m._id} className={`message-row ${m.read ? "read" : "unread"}`} style={{ marginBottom: 0 }}>
+                          <div className="message-meta">
+                            <strong>{m.name}</strong>
+                            <a href={`mailto:${m.email}`} className="message-email">{m.email}</a>
+                            <span className="message-date">
+                              {new Date(m.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                            </span>
+                            <span className={`read-badge ${m.read ? "is-read" : "is-unread"}`}>{m.read ? "Read" : "New"}</span>
+                          </div>
+                          <p className="message-subject">{m.subject}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+
+                {/* ── Top posts by views ── */}
+                <section className="dash-card">
+                  <div className="dash-card-header">
+                    <h2 className="dash-card-title"><FaNewspaper /> Top Posts by Views</h2>
+                    <button className="btn-outline seed-btn" onClick={() => setActiveTab("blog")}>View All</button>
+                  </div>
+                  {analytics.topPosts.length === 0 ? (
+                    <p className="dash-empty">No published posts yet.</p>
+                  ) : (
+                    <ul className="project-list">
+                      {analytics.topPosts.map((p, i) => (
+                        <li key={p._id} className="project-row">
+                          <span className="analytics-rank">#{i + 1}</span>
+                          <div className="project-row-info">
+                            <span className="project-row-title">{p.title}</span>
+                            <div className="project-row-chips">
+                              {p.tags?.slice(0, 2).map((t) => <span key={t} className="tech-chip">{t}</span>)}
+                              <span className="read-badge is-read">{p.published ? "Published" : "Draft"}</span>
+                            </div>
+                          </div>
+                          <div className="project-row-actions">
+                            <span className="analytics-views">{p.views || 0} views</span>
+                            {p.readTime && <span className="tech-chip">{p.readTime} min</span>}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+
+                {/* ── Refresh ── */}
+                <div style={{ textAlign: "right" }}>
+                  <button className="btn-outline seed-btn" onClick={fetchAnalytics} disabled={analyticsLoading}>
+                    {analyticsLoading ? <span className="spinner sm" /> : "↻ Refresh"}
+                  </button>
+                </div>
+              </>
+            )}
+          </>
+        )}
 
         {/* ═══════════════ PROJECTS ═══════════════ */}
         {activeTab === "projects" && (
@@ -852,6 +1113,35 @@ export default function AdminDashboard() {
                             <div className="project-row-chips">{p.techStack?.slice(0, 4).map((t) => <span key={t} className="tech-chip">{t}</span>)}</div>
                           </div>
                           <div className="project-row-actions">
+                            {/* Project image upload */}
+                            <div className="post-thumb-wrap" title="Upload project image">
+                              {p.image ? (
+                                <img
+                                  src={`${import.meta.env.VITE_API_URL || ""}${p.image.startsWith("/uploads") ? p.image : ""}`}
+                                  alt="thumb"
+                                  className="post-thumb-img"
+                                  onError={(e) => { e.target.style.display = "none"; }}
+                                />
+                              ) : (
+                                <div className="post-thumb-placeholder"><FaImage /></div>
+                              )}
+                              <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                style={{ display: "none" }}
+                                ref={(el) => { projImgRefs.current[p._id] = el; }}
+                                onChange={(e) => handleProjImgUpload(p._id, e.target.files?.[0])}
+                              />
+                              <button
+                                type="button"
+                                className="post-thumb-upload-btn"
+                                title="Upload image"
+                                disabled={projImgUploading === p._id}
+                                onClick={() => projImgRefs.current[p._id]?.click()}
+                              >
+                                {projImgUploading === p._id ? <span className="spinner sm" /> : <FaCamera />}
+                              </button>
+                            </div>
                             <button className="icon-btn star" onClick={() => handleToggleFeatured(p)}>{p.featured ? <FaStar /> : <FaRegStar />}</button>
                             <button className="icon-btn" onClick={() => startEdit(p)}><FaPencilAlt /></button>
                             {p.github && <a href={p.github} target="_blank" rel="noopener noreferrer" className="icon-btn"><FaGithub /></a>}
@@ -1224,20 +1514,71 @@ export default function AdminDashboard() {
                 <ul className="project-list">
                   {expItems.map((item) => (
                     <li key={item._id} className="project-row">
-                      <div className="project-row-info">
-                        <span className="project-row-title">
-                          {item.type === "education" ? "🎓" : "💼"} {item.title}
-                        </span>
-                        <div className="project-row-chips">
-                          <span className="tech-chip">{item.organization}</span>
-                          <span className="tech-chip">{item.startDate} — {item.current ? "Present" : item.endDate}</span>
+                      {editingExpId === item._id ? (
+                        <div className="edit-form">
+                          <div className="form-row">
+                            <Field label="Type">
+                              <select name="type" value={editExpForm.type} onChange={handleEditExpChange} className="admin-input">
+                                <option value="work">Work</option>
+                                <option value="education">Education</option>
+                              </select>
+                            </Field>
+                            <Field label="Order">
+                              <input name="order" type="number" value={editExpForm.order} onChange={handleEditExpChange} className="admin-input" />
+                            </Field>
+                          </div>
+                          <div className="form-row">
+                            <Field label="Title">
+                              <input name="title" value={editExpForm.title} onChange={handleEditExpChange} className="admin-input" />
+                            </Field>
+                            <Field label="Organization">
+                              <input name="organization" value={editExpForm.organization} onChange={handleEditExpChange} className="admin-input" />
+                            </Field>
+                          </div>
+                          <div className="form-row">
+                            <Field label="Start Date">
+                              <input name="startDate" value={editExpForm.startDate} onChange={handleEditExpChange} className="admin-input" />
+                            </Field>
+                            <Field label="End Date">
+                              <input name="endDate" value={editExpForm.endDate} onChange={handleEditExpChange} className="admin-input" disabled={editExpForm.current} />
+                            </Field>
+                          </div>
+                          <label className="checkbox-label">
+                            <input type="checkbox" name="current" checked={editExpForm.current} onChange={handleEditExpChange} />
+                            Currently working / studying here
+                          </label>
+                          <Field label="Location">
+                            <input name="location" value={editExpForm.location} onChange={handleEditExpChange} className="admin-input" />
+                          </Field>
+                          <Field label="Description">
+                            <textarea name="description" value={editExpForm.description} onChange={handleEditExpChange} rows={3} className="admin-input" />
+                          </Field>
+                          <div className="edit-actions">
+                            <button className="btn-primary" onClick={() => saveEditExp(item._id)} disabled={editExpSaving}>
+                              {editExpSaving ? <span className="spinner sm" /> : <><FaCheck /> Save</>}
+                            </button>
+                            <button className="btn-outline" onClick={() => setEditingExpId(null)}><FaTimes /> Cancel</button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="project-row-actions">
-                        <button className="icon-btn delete" onClick={() => handleExpDelete(item._id)} disabled={deletingExpId === item._id}>
-                          {deletingExpId === item._id ? <span className="spinner sm" /> : <FaTrash />}
-                        </button>
-                      </div>
+                      ) : (
+                        <>
+                          <div className="project-row-info">
+                            <span className="project-row-title">
+                              {item.type === "education" ? "🎓" : "💼"} {item.title}
+                            </span>
+                            <div className="project-row-chips">
+                              <span className="tech-chip">{item.organization}</span>
+                              <span className="tech-chip">{item.startDate} — {item.current ? "Present" : item.endDate}</span>
+                            </div>
+                          </div>
+                          <div className="project-row-actions">
+                            <button className="icon-btn" onClick={() => startEditExp(item)}><FaPencilAlt /></button>
+                            <button className="icon-btn delete" onClick={() => handleExpDelete(item._id)} disabled={deletingExpId === item._id}>
+                              {deletingExpId === item._id ? <span className="spinner sm" /> : <FaTrash />}
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -1301,18 +1642,61 @@ export default function AdminDashboard() {
                 <ul className="project-list">
                   {svcItems.map((item) => (
                     <li key={item._id} className="project-row">
-                      <div className="project-row-info">
-                        <span className="project-row-title">{item.title}</span>
-                        <div className="project-row-chips">
-                          {item.features?.slice(0, 3).map((f) => <span key={f} className="tech-chip">{f}</span>)}
+                      {editingSvcId === item._id ? (
+                        <div className="edit-form">
+                          <div className="form-row">
+                            <Field label="Title">
+                              <input name="title" value={editSvcForm.title} onChange={handleEditSvcChange} className="admin-input" />
+                            </Field>
+                            <Field label="Icon">
+                              <select name="icon" value={editSvcForm.icon} onChange={handleEditSvcChange} className="admin-input">
+                                <option value="FaCode">FaCode — Code</option>
+                                <option value="FaServer">FaServer — Server</option>
+                                <option value="FaDatabase">FaDatabase — Database</option>
+                                <option value="FaPaintBrush">FaPaintBrush — Design</option>
+                                <option value="FaMobileAlt">FaMobileAlt — Mobile</option>
+                                <option value="FaShoppingCart">FaShoppingCart — eCommerce</option>
+                              </select>
+                            </Field>
+                          </div>
+                          <Field label="Description">
+                            <textarea name="description" value={editSvcForm.description} onChange={handleEditSvcChange} rows={2} className="admin-input" />
+                          </Field>
+                          <Field label="Features" hint="one per line">
+                            <textarea name="features" value={editSvcForm.features} onChange={handleEditSvcChange} rows={4} className="admin-input" />
+                          </Field>
+                          <div className="form-row">
+                            <Field label="Price">
+                              <input name="price" value={editSvcForm.price} onChange={handleEditSvcChange} className="admin-input" />
+                            </Field>
+                            <Field label="Order">
+                              <input name="order" type="number" value={editSvcForm.order} onChange={handleEditSvcChange} className="admin-input" />
+                            </Field>
+                          </div>
+                          <div className="edit-actions">
+                            <button className="btn-primary" onClick={() => saveEditSvc(item._id)} disabled={editSvcSaving}>
+                              {editSvcSaving ? <span className="spinner sm" /> : <><FaCheck /> Save</>}
+                            </button>
+                            <button className="btn-outline" onClick={() => setEditingSvcId(null)}><FaTimes /> Cancel</button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="project-row-actions">
-                        {item.price && <span className="tech-chip">{item.price}</span>}
-                        <button className="icon-btn delete" onClick={() => handleSvcDelete(item._id)} disabled={deletingSvcId === item._id}>
-                          {deletingSvcId === item._id ? <span className="spinner sm" /> : <FaTrash />}
-                        </button>
-                      </div>
+                      ) : (
+                        <>
+                          <div className="project-row-info">
+                            <span className="project-row-title">{item.title}</span>
+                            <div className="project-row-chips">
+                              {item.features?.slice(0, 3).map((f) => <span key={f} className="tech-chip">{f}</span>)}
+                            </div>
+                          </div>
+                          <div className="project-row-actions">
+                            {item.price && <span className="tech-chip">{item.price}</span>}
+                            <button className="icon-btn" onClick={() => startEditSvc(item)}><FaPencilAlt /></button>
+                            <button className="icon-btn delete" onClick={() => handleSvcDelete(item._id)} disabled={deletingSvcId === item._id}>
+                              {deletingSvcId === item._id ? <span className="spinner sm" /> : <FaTrash />}
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -1472,18 +1856,53 @@ export default function AdminDashboard() {
                 <ul className="project-list">
                   {testItems.map((item) => (
                     <li key={item._id} className="project-row">
-                      <div className="project-row-info">
-                        <span className="project-row-title">{item.name}</span>
-                        <div className="project-row-chips">
-                          {item.role && <span className="tech-chip">{item.role}</span>}
-                          <span className="tech-chip">{"⭐".repeat(item.rating)}</span>
+                      {editingTestId === item._id ? (
+                        <div className="edit-form">
+                          <div className="form-row">
+                            <Field label="Name">
+                              <input name="name" value={editTestForm.name} onChange={handleEditTestChange} className="admin-input" />
+                            </Field>
+                            <Field label="Role">
+                              <input name="role" value={editTestForm.role} onChange={handleEditTestChange} className="admin-input" />
+                            </Field>
+                          </div>
+                          <Field label="Message">
+                            <textarea name="message" value={editTestForm.message} onChange={handleEditTestChange} rows={3} className="admin-input" />
+                          </Field>
+                          <div className="form-row">
+                            <Field label="Rating (1–5)">
+                              <select name="rating" value={editTestForm.rating} onChange={handleEditTestChange} className="admin-input">
+                                {[5,4,3,2,1].map((r) => <option key={r} value={r}>{"⭐".repeat(r)} {r} star{r !== 1 ? "s" : ""}</option>)}
+                              </select>
+                            </Field>
+                            <Field label="Order">
+                              <input name="order" type="number" value={editTestForm.order} onChange={handleEditTestChange} className="admin-input" />
+                            </Field>
+                          </div>
+                          <div className="edit-actions">
+                            <button className="btn-primary" onClick={() => saveEditTest(item._id)} disabled={editTestSaving}>
+                              {editTestSaving ? <span className="spinner sm" /> : <><FaCheck /> Save</>}
+                            </button>
+                            <button className="btn-outline" onClick={() => setEditingTestId(null)}><FaTimes /> Cancel</button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="project-row-actions">
-                        <button className="icon-btn delete" onClick={() => handleTestDelete(item._id)} disabled={deletingTestId === item._id}>
-                          {deletingTestId === item._id ? <span className="spinner sm" /> : <FaTrash />}
-                        </button>
-                      </div>
+                      ) : (
+                        <>
+                          <div className="project-row-info">
+                            <span className="project-row-title">{item.name}</span>
+                            <div className="project-row-chips">
+                              {item.role && <span className="tech-chip">{item.role}</span>}
+                              <span className="tech-chip">{"⭐".repeat(item.rating)}</span>
+                            </div>
+                          </div>
+                          <div className="project-row-actions">
+                            <button className="icon-btn" onClick={() => startEditTest(item)}><FaPencilAlt /></button>
+                            <button className="icon-btn delete" onClick={() => handleTestDelete(item._id)} disabled={deletingTestId === item._id}>
+                              {deletingTestId === item._id ? <span className="spinner sm" /> : <FaTrash />}
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </li>
                   ))}
                 </ul>
