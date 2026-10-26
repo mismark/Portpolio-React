@@ -102,11 +102,14 @@ export default function ChatWidget({ profile }) {
   const [unread, setUnread]       = useState(0);
   const [showSugg, setShowSugg]   = useState(true);
 
-  // Voice state
+  // Voice state — off by default until user explicitly enables it
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking]   = useState(false);
-  const [voiceOn, setVoiceOn]     = useState(true);
-  const [micSupported, setMicSupported] = useState(true); // optimistic — show button always
+  const [voiceOn, setVoiceOn]     = useState(() => {
+    try { return localStorage.getItem("chat_voice") === "on"; }
+    catch { return false; }
+  });
+  const [micSupported, setMicSupported] = useState(true);
 
   const messagesEndRef = useRef(null);
   const inputRef       = useRef(null);
@@ -159,7 +162,7 @@ export default function ChatWidget({ profile }) {
         time:    new Date(),
       };
       setMessages([greeting]);
-      setTimeout(() => speakText(greeting.content), 500);
+      // Voice is off by default — no auto-speak on greeting
     }
     setTimeout(() => inputRef.current?.focus(), 150);
   }, [open]);
@@ -342,9 +345,14 @@ export default function ChatWidget({ profile }) {
           <div className="chat-header-actions">
             {/* Voice on/off toggle */}
             <button
-              className={`chat-hdr-btn${speaking ? " speaking" : ""}`}
-              onClick={() => { setVoiceOn((v) => !v); if (speaking) stopSpeaking(); }}
-              title={voiceOn ? "Mute voice responses" : "Enable voice responses"}
+              className={`chat-hdr-btn voice-toggle-btn${voiceOn ? " voice-on" : " voice-off"}${speaking ? " speaking" : ""}`}
+              onClick={() => {
+                const next = !voiceOn;
+                setVoiceOn(next);
+                try { localStorage.setItem("chat_voice", next ? "on" : "off"); } catch {}
+                if (!next && speaking) stopSpeaking();
+              }}
+              title={voiceOn ? "Voice responses ON — click to mute" : "Voice responses OFF — click to enable"}
               aria-label="Toggle voice"
             >
               {voiceOn ? <FaVolumeUp /> : <FaVolumeMute />}

@@ -210,11 +210,43 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s, opacity 0.2s;
 }
 
 .chat-hdr-btn:hover {
   background: rgba(255,255,255,0.28);
+}
+
+/* Voice toggle — off state: muted/dimmed */
+.voice-toggle-btn.voice-off {
+  opacity: 0.38;
+  color: rgba(255,255,255,0.7);
+}
+.voice-toggle-btn.voice-off:hover {
+  opacity: 0.65;
+  background: rgba(255,255,255,0.12);
+}
+
+/* Voice toggle — on state: bright green */
+.voice-toggle-btn.voice-on {
+  color: #4ade80;
+  opacity: 1;
+  background: rgba(74,222,128,0.15);
+}
+.voice-toggle-btn.voice-on:hover {
+  background: rgba(74,222,128,0.25);
+}
+
+/* Speaking state — amber pulse */
+.voice-toggle-btn.speaking {
+  color: #fbbf24;
+  background: rgba(251,191,36,0.15);
+  animation: voice-btn-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes voice-btn-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
 }
 
 /* ── Messages ─────────────────────────────────────────────── */
