@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
-import { FaBars, FaTimes, FaMoon, FaSun } from "react-icons/fa";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 const navLinks = [
   { label: "Home",         href: "#home"        },
@@ -15,7 +15,7 @@ const navLinks = [
   { label: "Contact",      href: "#contact"      },
 ];
 
-function Navbar({ profile, dark, onToggleDark }) {
+function Navbar({ profile }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active,   setActive]   = useState("home");
@@ -30,7 +30,6 @@ function Navbar({ profile, dark, onToggleDark }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Only observe sections when on the home page
   useEffect(() => {
     if (!isHome) return;
     const sections = document.querySelectorAll("section[id]");
@@ -46,7 +45,6 @@ function Navbar({ profile, dark, onToggleDark }) {
     return () => observer.disconnect();
   }, [isHome]);
 
-  // Highlight "Blog" link when on blog pages
   useEffect(() => {
     if (location.pathname.startsWith("/blog")) setActive("blog");
   }, [location.pathname]);
@@ -103,16 +101,6 @@ function Navbar({ profile, dark, onToggleDark }) {
           ))}
         </nav>
 
-        {/* Dark mode toggle */}
-        <button
-          className="theme-toggle"
-          onClick={onToggleDark}
-          aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-          title={dark ? "Light mode" : "Dark mode"}
-        >
-          {dark ? <FaSun /> : <FaMoon />}
-        </button>
-
         <a
           href="#contact"
           className="btn-primary nav-cta"
@@ -143,14 +131,6 @@ function Navbar({ profile, dark, onToggleDark }) {
           </a>
         ))}
         <div className="mobile-bottom-row">
-          <button
-            className="theme-toggle"
-            onClick={onToggleDark}
-            aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {dark ? <FaSun /> : <FaMoon />}
-            <span>{dark ? "Light Mode" : "Dark Mode"}</span>
-          </button>
           <a
             href="#contact"
             className="btn-primary"

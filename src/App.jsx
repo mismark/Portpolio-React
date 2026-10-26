@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import useProfile from "./hooks/useProfile";
-import useDarkMode from "./hooks/useDarkMode";
 import useSEO from "./hooks/useSEO";
 
 // Portfolio sections
@@ -36,16 +35,16 @@ import ChatWidget from "./components/ChatWidget/ChatWidget";
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 
 // ── Public portfolio page ────────────────────────────────────────────────────
-function Portfolio({ dark, onToggleDark }) {
+function Portfolio() {
   const { profile, loading } = useProfile();
   useSEO({
-    title:       null, // uses site name as-is for home
+    title:       null,
     description: profile?.bio || undefined,
   });
 
   return (
     <>
-      <Navbar profile={profile} dark={dark} onToggleDark={onToggleDark} />
+      <Navbar profile={profile} />
       <main>
         <Hero         profile={profile} loading={loading} />
         <Socials      profile={profile} />
@@ -68,11 +67,9 @@ function Portfolio({ dark, onToggleDark }) {
 
 // ── Root with router ─────────────────────────────────────────────────────────
 function App() {
-  const { dark, toggle } = useDarkMode();
-
   return (
     <Routes>
-      <Route path="/"  element={<Portfolio dark={dark} onToggleDark={toggle} />} />
+      <Route path="/"  element={<Portfolio />} />
       <Route path="/admin" element={<AdminLogin />} />
       <Route
         path="/admin/dashboard"
@@ -82,8 +79,8 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="/blog"       element={<BlogList dark={dark} onToggleDark={toggle} />} />
-      <Route path="/blog/:slug" element={<BlogPost dark={dark} onToggleDark={toggle} />} />
+      <Route path="/blog"       element={<BlogList />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

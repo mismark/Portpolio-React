@@ -29,29 +29,6 @@
   --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
-/* ─── Dark Mode Tokens ───────────────────────────────────────────────────────── */
-[data-theme="dark"] {
-  --bg-primary:    #0f172a;
-  --bg-secondary:  #1e293b;
-  --bg-card:       #1e293b;
-  --bg-card-hover: #334155;
-
-  --accent:        #818cf8;
-  --accent-light:  #6366f1;
-  --accent-glow:   rgba(129, 140, 248, 0.15);
-  --accent-2:      #22d3ee;
-
-  --text-primary:  #f1f5f9;
-  --text-secondary:#94a3b8;
-  --text-muted:    #64748b;
-
-  --border:        rgba(129, 140, 248, 0.18);
-  --border-hover:  rgba(129, 140, 248, 0.45);
-
-  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.35);
-  --shadow-glow: 0 0 32px rgba(129, 140, 248, 0.15);
-}
-
 /* ─── Reset ──────────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   margin: 0;

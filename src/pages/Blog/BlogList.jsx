@@ -108,7 +108,7 @@ function PostCard({ post }) {
   );
 }
 
-function BlogList({ dark, onToggleDark }) {
+function BlogList() {
   const [posts, setPosts]       = useState(FALLBACK);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState("");
@@ -137,7 +137,7 @@ function BlogList({ dark, onToggleDark }) {
 
   return (
     <>
-      <Navbar profile={profile} dark={dark} onToggleDark={onToggleDark} />
+      <Navbar profile={profile} />
 
       <div className="blog-page">
         {/* Hero banner */}

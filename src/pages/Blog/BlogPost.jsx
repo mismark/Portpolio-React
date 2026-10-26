@@ -64,7 +64,7 @@ function renderContent(text = "") {
     });
 }
 
-function BlogPost({ dark, onToggleDark }) {
+function BlogPost() {
   const { slug } = useParams();
   const navigate  = useNavigate();
   const [post, setPost]       = useState(null);
@@ -104,7 +104,7 @@ function BlogPost({ dark, onToggleDark }) {
   if (loading) {
     return (
       <>
-        <Navbar profile={profile} dark={dark} onToggleDark={onToggleDark} />
+        <Navbar profile={profile} />
         <div className="blog-page">
           <div className="container post-skeleton-page">
             <div className="post-skeleton" style={{ height: 320 }} />
@@ -121,7 +121,7 @@ function BlogPost({ dark, onToggleDark }) {
   if (notFound || !post) {
     return (
       <>
-        <Navbar profile={profile} dark={dark} onToggleDark={onToggleDark} />
+        <Navbar profile={profile} />
         <div className="blog-page">
           <div className="container post-not-found">
             <h1>404</h1>
@@ -137,7 +137,7 @@ function BlogPost({ dark, onToggleDark }) {
   return (
     <>
       <ReadingProgress />
-      <Navbar profile={profile} dark={dark} onToggleDark={onToggleDark} />
+      <Navbar profile={profile} />
 
       <div className="blog-page">
         {/* Cover */}
